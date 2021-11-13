@@ -8,6 +8,4 @@ typedef struct {
     char* body;
 } Production;
 
-void appendProductions(char* production, List* productions);
-
 #endif //LFC_PRODUCTION_H

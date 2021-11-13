@@ -1,6 +1,7 @@
 #ifndef LFC_UTILS_H
 #define LFC_UTILS_H
 
+int isTerminal(char c);
 int length(char* s, char excludedChar);
 char** str_split(char* str, const char delimiter, int* resSize);
 char* remove_spaces(char* s);

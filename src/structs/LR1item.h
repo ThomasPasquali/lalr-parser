@@ -3,6 +3,7 @@
 
 #include "production.h"
 #include "../lib/set.h"
+#include "../lib/list.h"
 
 typedef struct {
     Production* p;
@@ -10,7 +11,8 @@ typedef struct {
     SimpleSet* ls; //Lookahead Set
 } LR1item;
 
-void print(LR1item*);
-
+void printItem(LR1item*);
+LR1item* createItem(Production*,int);
+char getMarkedSymbol(LR1item*);
 
 #endif //LFC_LR1ITEM_H

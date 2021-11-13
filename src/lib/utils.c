@@ -5,6 +5,13 @@
 #include <string.h>
 #include <assert.h>
 
+/**
+ * SEMPLIFICATO
+ */
+int isTerminal(char c) {
+    return (c >= 'a' && c <= 'z') || c < 0; //c < 0 for epsilon
+}
+
 int length(char* s, char excludedChar) {
     char c; int i = 0, len = 0;
     while((c = s[i++]) != 0)

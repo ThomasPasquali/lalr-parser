@@ -5,5 +5,6 @@
 #include "list.h"
 
 List* parseInput(FILE*);
+void appendProductions(char* production, List* productions);
 
 #endif //LFC_INPUTPARSER_H
