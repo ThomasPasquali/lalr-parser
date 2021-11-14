@@ -44,12 +44,17 @@ List* parseInput(FILE* fp) {
     List* productions = malloc(sizeof *productions);
     initList(productions, 5);
 
-    //Aggiunta produzione canonica S' -> S (~ -> S)
-    appendProductions("~->S", productions);
-
     while ((read = getline(&line, &len, fp)) != EOF) {
         if(line[read-1] == '\n') line[read-1] = 0; //Remove \n
         char* noSpacesProd = remove_spaces(line);
+
+        if(productions->used == 0) { //Aggiunta produzione canonica S' -> S (~ -> S)
+            char* tmp = malloc(sizeof(char)*5);
+            sprintf(tmp, "~->%c", noSpacesProd[0]);
+            appendProductions(tmp, productions);
+            free(tmp);
+        }
+
         appendProductions(noSpacesProd, productions);
         free(noSpacesProd);
     }

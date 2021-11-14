@@ -2,12 +2,11 @@
 #define LFC_LALR_H
 
 #include "../structs/automa.h"
-#include "../structs/LR1item.h"
-#include "../lib/list.h"
+#include "../structs/state.h"
 #include "../structs/grammar.h"
 
-List* closure0(Grammar*, List*);
-List* closure1(Grammar*, List*);
+void closure0(Grammar*, State*);
+void closure1(Grammar*, State*);
 Automa* generateLALRautoma(Grammar*);
 
 #endif //LFC_LALR_H

@@ -1,0 +1,18 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage {tikz}
+\usetikzlibrary {positioning}
+%\usepackage {xcolor}
+\definecolor {processblue}{cmyk}{0.96,0,0,0}
+
+\begin{document}
+\begin {center}
+\begin {tikzpicture}[
+        -latex ,auto ,
+        node distance = 1.8 cm,
+        semithick ,
+        state/.style ={
+            circle ,top color = white,
+            bottom color = processblue!20 ,
+            draw,processblue , text=blue , minimum width =1 cm}
+        ]

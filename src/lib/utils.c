@@ -5,11 +5,31 @@
 #include <string.h>
 #include <assert.h>
 
+#define VALID_SYMBOLS "+*@#" //TODO more?
+
+char itoc(int i) {
+    return '0'+i;
+}
+
+int ctoi(char c) {
+    return c-'0';
+}
+
+int inValidSymbols(char c) {
+    int res = 0, i = 0;
+    while(VALID_SYMBOLS[i] != 0 && (res = VALID_SYMBOLS[i] != c))i++;
+    return !res;
+}
+
+int validSymbol(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || inValidSymbols(c);
+}
+
 /**
  * SEMPLIFICATO
  */
 int isTerminal(char c) {
-    return (c >= 'a' && c <= 'z') || c < 0; //c < 0 for epsilon
+    return (c >= 'a' && c <= 'z') || c < 0; //TODO check epsilon c < 0 for epsilon
 }
 
 int length(char* s, char excludedChar) {

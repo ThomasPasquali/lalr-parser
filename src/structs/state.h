@@ -4,11 +4,12 @@
 #include "LR1item.h"
 
 typedef struct {
-    List* kernel;   //<LR1item>
-    List* rest;     //<LR1item>
+    List* items;   //<LR1item>
+    int kernelSize;
 } State;
 
-void printState(State*);
-State* createState(int initKernelLen, int initRestLen);
+void printState(State*, int);
+State* createState(int initSize);
+int sameKernel(State*, State*);
 
 #endif //LFC_STATE_H

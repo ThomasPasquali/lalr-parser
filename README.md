@@ -16,9 +16,10 @@ A -> BcBaA | Ɛ
 B -> Ɛ
 ```
 #### Nota bene
-* Il programma si preoccupa di eliminare gli spazi nell'input, tutti gli altri caratteri saranno identificati come parte del vocabolario;
+* Il programma si preoccupa di eliminare gli spazi nell'input;
+* Il vocabolario è composto dai caratteri \[A-Za-z\] più i caratteri in VALID_SYMBOLS (lib/utils.h);
 * Lo START SYMBOL è identificato dal driver della prima produzione;
-* I caratteri A-Z sono interpretati come non-terminali mentre i caratteri a-z come terminali.
+* I caratteri A-Z sono interpretati come non-terminali, tutti gli altri come terminali.
 
 #### Vincoli sul file di input
 * Il programma utilizza il tipo "char" per codificare i caratteri;
