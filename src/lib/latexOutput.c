@@ -25,8 +25,8 @@ void ouputLatexAutoma(Automa* a) {
     fclose(src);
 
     for (int i = 0; i < a->nodes->used; i++) {
-        //State* s = a->nodes->data[i];
-        fprintf(finalFile, "\\node[state] (%d) ", i);
+        State* s = a->nodes->data[i];
+        fprintf(finalFile, "\\node[state%s] (%d) ", (isFinal(s)?", double":""), i);
         if(i != 0) fprintf(finalFile, (i%2)==0?"[below of = %d]":"[right of = %d]", i-1);
         fprintf(finalFile, "{%d};\n", i);
     }

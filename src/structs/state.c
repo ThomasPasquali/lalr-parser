@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "state.h"
 #include "LR1item.h"
 #include "../lib/utils.h"
@@ -26,7 +27,7 @@ State* createState(int initSize) {
     return s;
 }
 
-int sameKernel(State* s1, State* s2) {
+int sameKernel(State* s1, State* s2) { //TODO OPTIMIZE WITH HASH
     int i, j;
     if(s1->kernelSize == s2->kernelSize) { //if s1 and s2 have same kernel size
         //Nested loops for order
@@ -38,6 +39,22 @@ int sameKernel(State* s1, State* s2) {
                 return FALSE;
         }
         return TRUE;
+    }
+    return FALSE;
+}
+
+int kernelExpansionContains(State* s, LR1item* item) { //TODO OPTIMIZE WITH HASH
+    for(int i = s->kernelSize; i < s->items->used; i++) 
+        if(itemsEqual(s->items->data[i], item))
+            return TRUE;
+    return FALSE;
+}
+
+int isFinal(State* s) {
+    for(int i = 0; i < s->items->used; i++) {
+        LR1item* itm = s->items->data[i];
+        if(itm->marker >= (int)strlen(itm->p->body))
+            return TRUE;
     }
     return FALSE;
 }

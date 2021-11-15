@@ -9,6 +9,7 @@
 #include "structs/automa.h"
 #include "structs/state.h"
 #include "structs/transition.h"
+#include "structs/grammar.h"
 
 #include "alg/lalr.h"
 
@@ -21,24 +22,31 @@
 
 int main(/*int argc, char const *argv[]*/) {
     setlocale(LC_ALL, "");
-    List* items = parseInput(stdin);
-    Automa* automa = generateLALRautoma(items);
+    Grammar* g = parseInput(stdin);
+    //printf("first(A)={%s}\n", mergeSetIntoString(first(g, "A")));
+    for (int i = 1; i < g->used; i++) {
+        Production* p = g->data[i];
+        first(g, ctos(p->driver));
+        if(p->first != 0) printf("first(%c)={%s}\n", p->driver, mergeSetIntoString(p->first));
+    }
+    
+    /*Automa* automa = generateLALRautoma(g);
 
     printf("AUTOMA:\n\n");
     for (int i = 0; i < automa->nodes->used; i++) {
-        //printState((State*)automa->nodes->data[i], i);
+        printState((State*)automa->nodes->data[i], i);
     }
 
     for (int i = 0; i < automa->transitions->used; i++) {
-        //printTransition((Transition*)automa->transitions->data[i]);
+        printTransition((Transition*)automa->transitions->data[i]);
     }
-    /*uint64_t len = set_length(automa->transitions);
+    uint64_t len = set_length(automa->transitions);
     char** transitions = set_to_array(automa->transitions, &len);
     for (uint64_t i = 0; i < len; i++) {
         printTransition((Transition*)transitions[i]);
-    }*/
+    }
 
-    ouputLatexAutoma(automa);
+    ouputLatexAutoma(automa);*/
 
     return 0;
 }

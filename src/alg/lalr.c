@@ -11,20 +11,29 @@
 #include "../lib/list.h"
 #include "../lib/set.h"
 
+void closure0i(Grammar* g, State* s, LR1item* i) {
+    char c = getMarkedSymbol(i);
+    if(!isTerminal(c))
+        for (int i = 0; i < g->used; i++) {
+            Production* p = g->data[i];
+            if(p->driver == c) {
+                LR1item* newItem = createItem(p, 0);
+                if(!kernelExpansionContains(s, newItem)) {
+                    insertList(s->items, newItem);
+                    closure0i(g, s, newItem);
+                }else free(newItem);                
+            }
+        }
+}
+
 /**
  * Appends to s->items (not in kernel) closure0(s-kernel) items
  * Notice: Usage of LR1items intead of LR0items is for simplicity
  */
-void closure0(Grammar* g, State* s) { //TODO FIX
+void closure0(Grammar* g, State* s) {
     for (int i = 0; i < s->kernelSize; i++) {
         LR1item* kItem = s->items->data[i];
-        char c = getMarkedSymbol(kItem);
-        if(!isTerminal(c))
-            for (int i = 0; i < g->used; i++) {
-                Production* p = g->data[i];
-                if(p->driver == c)
-                    insertList(s->items, createItem(p, 0));
-            }
+        closure0i(g, s, kItem);
     }
 }
 
@@ -40,7 +49,7 @@ void closure1(Grammar* g, State* s) {
 /**
  * fromState: state from which expand
  */
-void expandAutoma(Grammar* g, Automa* a, int fromState) {
+void expandAutoma(Grammar* g, Automa* a, int fromState) { 
     State* currentState = a->nodes->data[fromState];
     int newStatesCount = 0;
     printf("Expanding state %d:\n", fromState);
@@ -92,13 +101,16 @@ void expandAutoma(Grammar* g, Automa* a, int fromState) {
                 printTransition(t);
             }
         }
-    }//TODO CAPIRE PERCHE SU INPUT 3 SE NE SBATTE DELLO STATO 6 
-
-    printf("Added %d new states\n\n", newStatesCount);
-    for (int i = 1; i <= newStatesCount; i++) {
-        
-        expandAutoma(g, a, fromState+i);
     }
+
+    //if(fromState == 3) exit(0);
+    printf("Added %d new states: ", newStatesCount);
+    for (int i = a->nodes->used-newStatesCount; i < a->nodes->used; i++)
+        printf("%d ",i);
+    printf("\n\n");
+    for (int i = a->nodes->used-newStatesCount; i < a->nodes->used; i++)
+        expandAutoma(g, a, i);
+    
 }
 
 Automa* generateLALRautoma(Grammar* g) {

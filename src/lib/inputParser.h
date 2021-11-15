@@ -3,8 +3,9 @@
 
 #include <stdio.h>
 #include "list.h"
+#include "../structs/grammar.h"
 
-List* parseInput(FILE*);
+Grammar* parseInput(FILE*);
 void appendProductions(char* production, List* productions);
 
 #endif //LFC_INPUTPARSER_H

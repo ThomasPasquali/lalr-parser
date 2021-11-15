@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "inputParser.h"
 #include "../structs/production.h"
+#include "../structs/grammar.h"
 #include "utils.h"
 #include "list.h"
 #include "set.h"
 #include "../structs/LR1item.h"
-#include <wchar.h>
 
 int count(char c, char* s) {
     int count = 0, i = 0;
@@ -26,12 +27,18 @@ void appendProductions(char* production, List* items) {
     for (int i = 0; i < bodiesLen; i++) {
         p = malloc(sizeof *p);
         p->driver = driver;
+
+        for (size_t j = 0; j < strlen(bodies[i]); j++) //Removing ghost chars....idk
+            if((int)bodies[i][j] > 0 && (int)bodies[i][j] < 32)
+                bodies[i][j] = 0;
+        
         p->body = bodies[i];
+        p->first = 0;
         insertList(items, p);
     }
 }
 
-List* parseInput(FILE* fp) {
+Grammar* parseInput(FILE* fp) {
     char* line = NULL;
     size_t len = 0;
     ssize_t read;
@@ -41,26 +48,26 @@ List* parseInput(FILE* fp) {
         exit(EXIT_FAILURE);
     }
 
-    List* productions = malloc(sizeof *productions);
-    initList(productions, 5);
+    Grammar* g = malloc(sizeof *g);
+    initList(g, 5);
 
     while ((read = getline(&line, &len, fp)) != EOF) {
         if(line[read-1] == '\n') line[read-1] = 0; //Remove \n
         char* noSpacesProd = remove_spaces(line);
 
-        if(productions->used == 0) { //Aggiunta produzione canonica S' -> S (~ -> S)
+        if(g->used == 0) { //Aggiunta produzione canonica S' -> S (~ -> S)
             char* tmp = malloc(sizeof(char)*5);
             sprintf(tmp, "~->%c", noSpacesProd[0]);
-            appendProductions(tmp, productions);
+            appendProductions(tmp, g);
             free(tmp);
         }
 
-        appendProductions(noSpacesProd, productions);
+        appendProductions(noSpacesProd, g);
         free(noSpacesProd);
     }
 
     fclose(fp);
     if(line) free(line);
 
-    return productions;
+    return g;
 }

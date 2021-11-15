@@ -1,0 +1,5 @@
+S -> aABb
+A -> Ac | d
+B -> CD
+C -> e | #
+D -> f | #
