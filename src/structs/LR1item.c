@@ -21,13 +21,14 @@ void printItem(LR1item* item) {
         s[j++] = '.';
         s[j] = 0;
     }
-    printf(GREEN"LR(1)item(%p): %c -> %s"E"\n", item, item->p->driver, s);
+    printf(GREEN"LR(1)item(%p): [%c -> %s, {%s}]"E"\n", item, item->p->driver, s, mergeSetIntoString(item->ls));
 }
 
 LR1item* createItem(Production* p,int marker) {
     LR1item* i = malloc(sizeof *i);
     i->marker = marker;
-    //TODO i->ls
+    SimpleSet* ls = malloc(sizeof *ls); set_init(ls);
+    i->ls = ls;
     i->p = p;
     return i;
 }
@@ -37,6 +38,5 @@ char getMarkedSymbol(LR1item* i) {
 }
 
 int itemsEqual(LR1item* i1, LR1item* i2) {
-    //TODO ls
-    return i1->marker == i2->marker && i1->p == i2->p;
+    return i1->marker == i2->marker && i1->p == i2->p && set_cmp(i1->ls, i2->ls) == SET_EQUAL;
 }

@@ -4,3 +4,6 @@ main
 cmake-build-debug
 CMakeLists.txt
 graph.*
+out
+output.txt
+texput.log

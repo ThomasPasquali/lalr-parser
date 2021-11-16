@@ -57,7 +57,7 @@ Grammar* parseInput(FILE* fp) {
 
         if(g->used == 0) { //Aggiunta produzione canonica S' -> S (~ -> S)
             char* tmp = malloc(sizeof(char)*5);
-            sprintf(tmp, "~->%c", noSpacesProd[0]);
+            sprintf(tmp, "%c->%c", S1, noSpacesProd[0]);
             appendProductions(tmp, g);
             free(tmp);
         }

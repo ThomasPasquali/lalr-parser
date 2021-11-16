@@ -15,8 +15,10 @@
 #define TRUE 1
 #define FALSE 0
 
-#define VALID_SYMBOLS "+*@=(){}[]" //TODO more?
+#define VALID_SYMBOLS "+*@=(){}[]$" //TODO more?
 #define EPSILON '#'
+#define S1 '~'
+#define EOL '$'
 
 int isNonTerminal(char c);
 int isTerminal(char c);
@@ -40,5 +42,6 @@ SimpleSet* first(Grammar* g, char* s);
  */
 SimpleSet* firstNT(Grammar* g, char nt);
 char* mergeSetIntoString(SimpleSet*);
+int getRandom(int lower, int upper);
 
 #endif //LFC_UTILS_H
