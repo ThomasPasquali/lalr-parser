@@ -37,6 +37,12 @@ char getMarkedSymbol(LR1item* i) {
     return i->p->body[i->marker];
 }
 
-int itemsEqual(LR1item* i1, LR1item* i2) {
-    return i1->marker == i2->marker && i1->p == i2->p && set_cmp(i1->ls, i2->ls) == SET_EQUAL;
+int itemsEqual(LR1item* i1, LR1item* i2, int onlyLR0) {
+    int sameLS = TRUE;
+    if(!onlyLR0) sameLS = set_cmp(i1->ls, i2->ls) == SET_EQUAL;
+    return i1->marker == i2->marker && i1->p == i2->p && sameLS;
+}
+
+int markerAtTheEnd(LR1item* i) {
+    return i->marker >= (int)strlen(i->p->body);
 }

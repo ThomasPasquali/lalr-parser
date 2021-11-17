@@ -7,7 +7,8 @@
 #define OUT_RAW_FILENAME "output.txt"
 
 #define NON_FINAL_MARKER 'N'
-#define FINAL_MARKER 'N'
+#define FINAL_MARKER 'F'
+#define EDGE_SYMBOL_STATE_SEP '>'
 #define R_ITEM_ARROW "->"
 #define R_ITEM_SEP ','
 

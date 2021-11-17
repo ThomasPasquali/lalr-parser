@@ -3,7 +3,11 @@
 main
 cmake-build-debug
 CMakeLists.txt
-graph.*
+graph.aux
+graph.lyx
+graph.pdf
+graph.tex
+graph.log
 out
 output.txt
 texput.log

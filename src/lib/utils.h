@@ -18,7 +18,7 @@
 #define VALID_SYMBOLS "+*@=(){}[]$" //TODO more?
 #define EPSILON '#'
 #define S1 '~'
-#define EOL '$'
+#define EOW '$'
 
 int isNonTerminal(char c);
 int isTerminal(char c);

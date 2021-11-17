@@ -14,6 +14,7 @@ typedef struct {
 void printItem(LR1item*);
 LR1item* createItem(Production*,int);
 char getMarkedSymbol(LR1item*);
-int itemsEqual(LR1item*, LR1item*);
+int itemsEqual(LR1item*, LR1item*, int onlyLR0);
+int markerAtTheEnd(LR1item*);
 
 #endif //LFC_LR1ITEM_H

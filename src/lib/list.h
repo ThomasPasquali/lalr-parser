@@ -9,6 +9,9 @@ typedef struct {
 
 void initList(List*, int);
 void insertList(List*, void*);
+/**
+ * Notice that the second list is freed
+ */
 void mergeLists(List*, List*);
 void freeList(List*);
 

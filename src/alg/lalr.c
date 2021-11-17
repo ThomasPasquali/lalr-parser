@@ -7,6 +7,7 @@
 #include "../structs/production.h"
 #include "../structs/state.h"
 #include "../structs/transition.h"
+#include "../structs/graph.h"
 #include "lalr.h"
 #include "../lib/utils.h"
 #include "../lib/list.h"
@@ -19,7 +20,7 @@ void closure0i(Grammar* g, State* s, LR1item* i) {
             Production* p = g->data[i];
             if(p->driver == c) {
                 LR1item* newItem = createItem(p, 0);
-                if(!kernelExpansionContains(s, newItem)) { //Avoid duplicates due to recursion
+                if(!kernelExpansionContains(s, newItem, FALSE)) { //Avoid duplicates due to recursion
                     insertList(s->items, newItem);
                     closure0i(g, s, newItem);
                 }else free(newItem);                
@@ -123,7 +124,7 @@ void closure1(Grammar* g, State* s) {
 /**
  * fromState: state from which expand
  */
-void expandAutoma(Grammar* g, Automa* a, int fromState) { 
+void expandLR1Automa(Grammar* g, Automa* a, int fromState) { 
     State* currentState = a->nodes->data[fromState];
     int newStatesCount = 0;
     //printf("Expanding state %d:\n", fromState);
@@ -136,10 +137,8 @@ void expandAutoma(Grammar* g, Automa* a, int fromState) {
 
         if(validSymbol(symbol)) {
             Transition* t = createTransition(fromState, -1, symbol);
-            //TODO is it right?
-            char* t_key = serializeTransition(t, TRUE);
             
-            if(set_add(a->transitions_keys, t_key) == SET_TRUE) { //t(from, symbol) not present
+            if(set_add(a->transitions_keys, serializeTransition(t, TRUE)) == SET_TRUE) { //t(from, symbol) not present
                 State* newState = createState(currentState->items->used);
                 
                 for (int j = i; j < currentState->items->used; j++) {
@@ -157,7 +156,7 @@ void expandAutoma(Grammar* g, Automa* a, int fromState) {
                 int alreadyExists = FALSE, sameKernelI;
                 //Find if exists a state with the same kernel TODO optimize with set
                 for (sameKernelI = 0; sameKernelI < a->nodes->used; sameKernelI++) { //foreach state (aState) in the automa
-                    if(sameKernel(a->nodes->data[sameKernelI], newState)) {
+                    if(sameKernel(a->nodes->data[sameKernelI], newState, FALSE)) {
                         alreadyExists = TRUE;
                         break;
                     }
@@ -186,25 +185,84 @@ void expandAutoma(Grammar* g, Automa* a, int fromState) {
     for (int i = a->nodes->used-newStatesCount; i < a->nodes->used; i++)
         printf("%d ",i);
     printf("\n\n");*/
+
     for (int i = a->nodes->used-newStatesCount; i < a->nodes->used; i++)
-        expandAutoma(g, a, i);
-    
+        expandLR1Automa(g, a, i);
 }
 
-Automa* generateLALRautoma(Grammar* g) {
+Automa* generateLR1automa(Grammar* g) {
     Automa* a = malloc(sizeof *a);
-    initAutoma(a, 10);//TODO change 10
+    initAutoma(a, g->used*2);
 
     State* firstState = createState(1);
 
     //[S' -> S, {$}] (~ -> .S)
     LR1item* firstItem = createItem((Production*)g->data[0], 0); //DEFAULT BEHAVIOUR
-    set_add(firstItem->ls, ctos(EOL));
+    set_add(firstItem->ls, ctos(EOW));
     insertList(firstState->items, firstItem); firstState->kernelSize++;
     closure1(g, firstState);
     insertList(a->nodes, firstState);
 
-    expandAutoma(g, a, 0);
+    expandLR1Automa(g, a, 0);
 
     return a;
+}
+
+Automa* generateLR1Mautoma(Automa* lr1A, Graph* lr1G) {
+    Automa* mergedA = malloc(sizeof *mergedA);
+    initAutoma(mergedA, lr1A->nodes->used);
+    int mI;
+
+    //mergesToDo[lr1A state index] = mergedA state terget index
+    int mergesToDo[lr1A->nodes->used]; //no need to init
+
+    for (int i = 0; i < lr1A->nodes->used; i++) {
+        State* lr1S = lr1A->nodes->data[i];
+        
+        /*printf("---------------\n");
+        printState(lr1S, i);
+        printf("++++++++++++++\n");*/
+
+        for(mI = 0; mI < mergedA->nodes->used; mI++) { //Finding if exists a mergedA node with same LR(0) kernel
+            //if(sameKernel(mergedA->nodes->data[mI], lr1S, TRUE)) printState(mergedA->nodes->data[mI], mI);
+            if(sameKernel(mergedA->nodes->data[mI], lr1S, TRUE)) //Comparing LR(0) kernel
+                break;
+        }
+
+        if(mI >= mergedA->nodes->used) { //Add new state to mergedA (only kernel is merged for now)
+            //printf("State %-3d goes to NEW state %d\n", i, mI);
+            State* newS = createState(lr1S->kernelSize);
+            for (int j = 0; j < lr1S->kernelSize; j++)
+                insertList(newS->items, lr1S->items->data[j]);
+            newS->kernelSize += lr1S->kernelSize;
+            insertList(mergedA->nodes, newS);
+        }else{ //Need to merge
+            //printf("State %-3d goes to EXISTING state %d\n", i, mI);
+            State* mS = mergedA->nodes->data[mI];
+            for (int j = 0; j < lr1S->kernelSize; j++)
+                insertList(mS->items, lr1S->items->data[j]);
+            mS->kernelSize += lr1S->kernelSize;
+        } 
+        
+        mergesToDo[i] = mI;
+    }
+    
+    for (int i = 0; i < lr1A->nodes->used; i++) { //Do kernel expansion merges
+        State* fromS = lr1A->nodes->data[i];
+        State* toS = mergedA->nodes->data[mergesToDo[i]];
+        for (int j = fromS->kernelSize; j < fromS->items->used; j++)
+            insertList(toS->items, fromS->items->data[j]);
+
+        Node* lr1Node = lr1G->nodes[i].head;
+        //Update transitions
+        while(lr1Node) {
+            Transition* t = createTransition(mergesToDo[i], mergesToDo[lr1Node->dest], lr1Node->symbol);
+            if(set_add(mergedA->transitions_keys, serializeTransition(t, TRUE)) == SET_TRUE)
+                insertList(mergedA->transitions, t);
+            else free(t);
+            lr1Node = lr1Node->next;
+        }        
+    }
+
+    return mergedA;
 }

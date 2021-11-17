@@ -37,7 +37,7 @@ int validSymbol(char c) {
  * SEMPLIFICATO
  */
 int isTerminal(char c) {
-    return (c >= 'a' && c <= 'z') || isEpsilon(c) || inValidSymbols(c); //TODO check epsilon c < 0 for epsilon
+    return (c >= 'a' && c <= 'z') || isEpsilon(c) || inValidSymbols(c);
 }
 
 int isNonTerminal(char c) {

@@ -1,18 +1,17 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage {tikz}
-\usetikzlibrary {positioning}
-%\usepackage {xcolor}
-\definecolor {processblue}{cmyk}{0.96,0,0,0}
+\usetikzlibrary{automata, positioning, arrows}
 
 \begin{document}
 \begin {center}
 \begin {tikzpicture}[
-        -latex ,auto ,
+        -latex ,auto,
         node distance = 3 cm,
         semithick ,
         state/.style ={
             circle ,top color = white,
-            bottom color = processblue!20 ,
-            draw,processblue , text=blue , minimum width =1 cm}
+            bottom color = blue!20 ,
+            draw,blue , text=blue , minimum width =0.7 cm}
         ]
+

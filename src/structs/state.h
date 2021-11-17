@@ -10,11 +10,11 @@ typedef struct {
 
 void printState(State*, int);
 State* createState(int initSize);
-int sameKernel(State*, State*);
+int sameKernel(State*, State*, int onlyLR0);
 /**
  * returns: TRUE if i is equals to one of the kernel expansion items
  */
-int kernelExpansionContains(State* s, LR1item* i);
+int kernelExpansionContains(State* s, LR1item* i, int onlyLR0);
 /**
  * returns: TRUE if exists an item has the marker at the end of the body of the production
  */

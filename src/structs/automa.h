@@ -10,10 +10,13 @@ typedef struct {
     List* transitions;              //<Transition*>
     SimpleSet* transitions_keys;    //<Transition*>
                                     /**
-                                     * transitions_keys contain only τ(from,symbol)
+                                     * transitions_keys contain only τ(from,symbol) for OPTIMIZATION
                                      */
 } Automa;
 
-void initAutoma(Automa*,int);
+/**
+ * initLen: initial length of nodes and transitions
+ */
+void initAutoma(Automa*, int initLen);
 
 #endif //LFC_AUTOMA_H
