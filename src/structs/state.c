@@ -21,13 +21,18 @@ State* createState(int initSize) {
     List* l = malloc(sizeof *l);
     initList(l, initSize);
     s->items = l;
-
     s->kernelSize = 0;
+    s->hash = 0;
 
     return s;
 }
 
-int sameKernel(State* s1, State* s2, int onlyLR0) { //TODO OPTIMIZE WITH HASH
+void destroyState(State* s) {
+    freeList(s->items);
+    free(s);
+}
+
+int sameKernel(State* s1, State* s2, int onlyLR0) {
     int i, j;
     if(s1->kernelSize == s2->kernelSize) { //if s1 and s2 have same kernel size
         //Nested loops for order
@@ -39,6 +44,23 @@ int sameKernel(State* s1, State* s2, int onlyLR0) { //TODO OPTIMIZE WITH HASH
                 return FALSE;
         }
         return TRUE;
+    }
+    return FALSE;
+}
+
+uint64_t getStateKernelHash(State* s) {
+    if(s->kernelSize <= 0) return 0;
+    uint64_t hash = getItemHash(s->items->data[0]);
+    for (int i = 1; i < s->kernelSize; i++)
+        hash ^= getItemHash(s->items->data[i]);
+    return hash;
+}
+
+int sameKernelHash(State* s1, State* s2) {
+    if(s1->kernelSize == s2->kernelSize) {
+        if(s1->hash == 0) s1->hash = getStateKernelHash(s1);
+        if(s2->hash == 0) s2->hash = getStateKernelHash(s2);
+        return s1->hash == s2->hash;
     }
     return FALSE;
 }

@@ -22,6 +22,7 @@ char* serializeTransition(Transition* t, int onlyKey) {
     s[i] = 0;
     return s;
 }
+
 Transition* parseTransition(char* s) {
     int from, to;
     char symbol;

@@ -17,7 +17,7 @@ void closure1(Grammar* g, State* s);
 /**
  * returns: a LR(1) automa for the grammar g
  */
-Automa* generateLR1automa(Grammar* g);
+Automa* generateLR1automa(Grammar* g, int useHashKernelComp);
 /**
  * returns: a NEW LRm(1) automa from the lr1A automa
  * Notice: items are referenced (NOT COPIED)

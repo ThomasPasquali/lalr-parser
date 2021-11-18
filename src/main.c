@@ -20,6 +20,7 @@ enum {
     RAW_OUTPUT = 1 << 0, // 1_2
     TEX_OUTPUT = 1 << 1, // 10_2
     CONSOLE_OUTPUT = 1 << 2, // 100_2
+    HASH_OPTIMIZATION = 1 << 3, // 1000_2
 };
 
 void printUsageAndExit() {
@@ -60,16 +61,17 @@ int main(int argc, char *argv[]) {
     int flags = 0;
     for (int i = 0; i < ARGS_LEN; i++) {
         if(args[i] == 0) break;
-        if(args[i] == 'r') flags = flags | RAW_OUTPUT;
-        if(args[i] == 't') flags = flags | TEX_OUTPUT;
-        if(args[i] == 'c') flags = flags | CONSOLE_OUTPUT;
+        else if(args[i] == 'r') flags = flags | RAW_OUTPUT;
+        else if(args[i] == 't') flags = flags | TEX_OUTPUT;
+        else if(args[i] == 'c') flags = flags | CONSOLE_OUTPUT;
+        else if(args[i] == 'o') flags = flags | HASH_OPTIMIZATION;
     }
 
     if(flags == 0) printUsageAndExit(); //wrong flags
     
     Grammar* g = parseInput(stdin);
 
-    Automa* lr1A = generateLR1automa(g);
+    Automa* lr1A = generateLR1automa(g, flags & HASH_OPTIMIZATION);
     Graph* lr1G = createGraphFromAutoma(lr1A, flags & CONSOLE_OUTPUT, "\nLR(1) automa:\n\n");
 
     Automa* lr1mA = generateLR1Mautoma(lr1A, lr1G);
@@ -85,6 +87,6 @@ int main(int argc, char *argv[]) {
 
     if(flags & TEX_OUTPUT) ouputLatexAutoma(lr1mG);
     if(flags & RAW_OUTPUT) ouputRawAutoma(lr1mG, lr1mA);
-
+    
     return 0;
 }

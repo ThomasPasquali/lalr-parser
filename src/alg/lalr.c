@@ -23,7 +23,7 @@ void closure0i(Grammar* g, State* s, LR1item* i) {
                 if(!kernelExpansionContains(s, newItem, FALSE)) { //Avoid duplicates due to recursion
                     insertList(s->items, newItem);
                     closure0i(g, s, newItem);
-                }else free(newItem);                
+                }else destroyItem(newItem);                
             }
         }
 }
@@ -88,7 +88,7 @@ void closure1(Grammar* g, State* s) {
                     SimpleSet* tmp = malloc(sizeof *tmp); set_init(tmp);
                     set_union(tmp, firstbd, newLS);
 
-                    free(bd); free(firstbd); free(newLS);
+                    free(bd); set_destroy(firstbd); set_destroy(newLS);
                     newLS = tmp;
                 }
 
@@ -105,7 +105,7 @@ void closure1(Grammar* g, State* s) {
                         SimpleSet* tmp = malloc(sizeof *tmp); set_init(tmp);
                         set_union(tmp, itm->ls, newLS);
 
-                        free(itm->ls);
+                        set_destroy(itm->ls);
                         itm->ls = tmp;
                     }
                 }
@@ -124,7 +124,7 @@ void closure1(Grammar* g, State* s) {
 /**
  * fromState: state from which expand
  */
-void expandLR1Automa(Grammar* g, Automa* a, int fromState) { 
+void expandLR1Automa(Grammar* g, Automa* a, int fromState, int useHashKernelComp) { 
     State* currentState = a->nodes->data[fromState];
     int newStatesCount = 0;
     //printf("Expanding state %d:\n", fromState);
@@ -147,31 +147,35 @@ void expandLR1Automa(Grammar* g, Automa* a, int fromState) {
                         LR1item* itm = createItem(tmpItm->p, tmpItm->marker+1);
                         SimpleSet* tmp = malloc(sizeof *tmp); set_init(tmp);
                         set_union(tmp, itm->ls, tmpItm->ls);
-                        free(itm->ls);
+                        set_destroy(itm->ls);
                         itm->ls = tmp;
                         insertList(newState->items, itm); newState->kernelSize++;
                     }
                 }
 
                 int alreadyExists = FALSE, sameKernelI;
-                //Find if exists a state with the same kernel TODO optimize with set
+                //Find if exists a state with the same kernel
                 for (sameKernelI = 0; sameKernelI < a->nodes->used; sameKernelI++) { //foreach state (aState) in the automa
-                    if(sameKernel(a->nodes->data[sameKernelI], newState, FALSE)) {
+                    //if(useHashKernelComp && sameKernelHash(a->nodes->data[sameKernelI], newState)) { printState(a->nodes->data[sameKernelI], sameKernelI); printState(newState, -1); printf("%s\n%ld\n%ld\n------------\n", sameKernelHash(a->nodes->data[sameKernelI], newState)?"SI":"NO", ((State*)a->nodes->data[sameKernelI])->hash, newState->hash); }
+                    if(
+                        (useHashKernelComp && sameKernelHash(a->nodes->data[sameKernelI], newState)) //if program launched with optimization flag
+                        || sameKernel(a->nodes->data[sameKernelI], newState, FALSE)                  //otherwise
+                    ) {
                         alreadyExists = TRUE;
                         break;
                     }
                 }
 
-                if(alreadyExists) {
-                    //printf("STATE EXISTS: %d\n", sameKernelI);
+                if(alreadyExists) { //printf("STATE EXISTS: %d\n", sameKernelI);
                     t->to = sameKernelI;
+                    destroyState(newState);
                 }else {
-                    //printf("ADDING ");
-                    //printState(newState, -1);
+                    //printf("ADDING "); printState(newState, -1);
                     insertList(a->nodes, newState);
                     t->to = a->nodes->used-1;
                     newStatesCount++;
                     closure1(g, newState);
+                    newState->hash = 0;
                 }
                 
                 insertList(a->transitions, t);
@@ -187,10 +191,10 @@ void expandLR1Automa(Grammar* g, Automa* a, int fromState) {
     printf("\n\n");*/
 
     for (int i = a->nodes->used-newStatesCount; i < a->nodes->used; i++)
-        expandLR1Automa(g, a, i);
+        expandLR1Automa(g, a, i, useHashKernelComp);
 }
 
-Automa* generateLR1automa(Grammar* g) {
+Automa* generateLR1automa(Grammar* g, int useHashKernelComp) {
     Automa* a = malloc(sizeof *a);
     initAutoma(a, g->used*2);
 
@@ -203,7 +207,7 @@ Automa* generateLR1automa(Grammar* g) {
     closure1(g, firstState);
     insertList(a->nodes, firstState);
 
-    expandLR1Automa(g, a, 0);
+    expandLR1Automa(g, a, 0, useHashKernelComp);
 
     return a;
 }

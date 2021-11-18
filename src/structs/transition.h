@@ -3,11 +3,6 @@
 
 #include "../lib/list.h"
 
-/**
- * The choice of using char* is 
- * for set library that works on strings
- * (transitions must be unique)
- */
 typedef struct {
     int from;
     int to;
