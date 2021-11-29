@@ -62,7 +62,7 @@ char* remove_spaces(char* s) {
     while((c = s[i++]) != 0) 
         if(c != ' ') {
             if(c != '>' && c != '-' && c != '|' && !validSymbol(c)) {
-                fprintf(stderr, "Non valid symbol '%c', exiting...\n", c);
+                fprintf(stderr, "Non valid symbol %d, exiting...\n", c);
                 exit(1);
             }
             newS[j++] = c;

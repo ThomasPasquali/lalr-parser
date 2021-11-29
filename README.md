@@ -2,7 +2,7 @@
 
 ## Compilazione
 
-Per compilare il programma è sufficente chiamare gcc passando tutti i file "*.c" e "*.h" in "src" e sottocartelle, comoda alternativa è utilizzare il Makefile fornito.
+Per compilare il programma è sufficiente invocare gcc passando tutti i file "*.c" e "*.h" in "src" sottocartelle incluse; comoda alternativa è utilizzare il Makefile fornito.
 ```console
 # Working directory: src
 
@@ -12,23 +12,23 @@ gcc main.c alg/lalr.c ...... -o main
 # Makefile
 make
 ```
-Questo genererà il file eseguibile "main".
+Verrà quindi generato il file eseguibile "main".
 
 ## Input
 
-Per poter generare l'automa si parte da una grammatica che il programma ha bisogno di conoscere.
+Per la generazione dell'automa è necessario fornire una grammatica.
 
-Per semplicità implementativa ho fatto le seguenti scelte:
-* V = {\[A-Za-z\]} U VALID_SYMBOLS (lib/utils.h);
-* T = {\[a-z\]} U VALID_SYMBOLS (lib/utils.h);
+Per semplicità di implementazione ho effettuato le seguenti scelte:
+* $V = \{[A-Za-z]\} \cup \text{VALID\_SYMBOLS}$ (lib/utils.h);
+* $T = \{[a-z]\} \cup \text{VALID\_SYMBOLS}$ (lib/utils.h);
 * S: lo START SYMBOL è identificato dal driver della prima produzione passata in input;
 * P: identificato nell'input.
 
-Nota: Qualora si volesse modificare tali assunzioni è necessario modificare le funzioni e le costanti in "lib/utils.c" e "lib/utils.h", per avere simboli composti da più lettere è necessario rivedere buona parte del programma modificando le strutture dati e creando apposite funzioni di confronto e riconoscimento: nulla di che ma ho preferito la semplicità su questo aspetto nella mia implementazione.
+Nota: Qualora si volessero modificare tali assunzioni è necessario rettificare le funzioni e le costanti in "lib/utils.c" e "lib/utils.h", per avere simboli composti da più lettere è indispensabile rivedere buona parte del programma modificando le strutture dati e creando apposite funzioni di confronto e riconoscimento: nulla di che ma ho preferito la semplicità su questo aspetto nella mia implementazione.
 
 ### File di input
 
-Il programma si aspetta di ricevere in input su stdin uno stream di caratteri che identifica un insieme di produzioni.
+Il programma attende su stdin uno stream di caratteri che identifica un insieme di produzioni.
 
 Esempio:
 ```console
@@ -46,7 +46,7 @@ R -> L
 
 ## Utilizzo
 
-Come già detto in precedenza, il programma aspetta su stdin una lista di produzioni che si attengano ai vincoli espressi poco fa.
+Come già detto in precedenza, il programma si aspetta su stdin una lista di produzioni che si attengano ai vincoli espressi poco fa.
 
 In caso di chiamata errata al programma, riporto l'output fornito: 
 ```console
@@ -76,16 +76,14 @@ Formato del file (# = numero):
 <tot # of states>\n
 foreach state
 <state #> <NON_FINAL_MARKER|FINAL_MARKER>
-    {
     foreach transition 
     <transition symbol>EDGE_SYMBOL_STATE_SEP<target state> 
-    }\n
+    \n
 foreach final state
-<state #> 
-    {
+<state #>
     foreach reducing item (if more than one separated by R_ITEM_SEP)
-    <item production driver>R_ITEM_ARROW<item production body> <item lookahead set (no need for separator since symbols are supposed to besingle char)> 
-    }\n
+    <item production driver>R_ITEM_ARROW<item production body> <item lookahead set (no need for separator since symbols are supposed to besingle char)>
+    \n
 \n
 <start symbol> <start state #>
 ```
@@ -121,11 +119,9 @@ Sarà generato un file "graph.tex" composto da:
 * L'output generato dal programma;
 * Il contenuto del file POST_FILENAME in "lib/output.h" (default "src/files/post.tex").
 
-*La visualizzazione del grafo purtroppo non è sempre perfetta...*
+*Talvolta la visualizzazione del grafo potrebbe risultare poco comprensibile, in tal caso è opportuno rieseguire il programma, il nuovo grafo sarà leggermente diverso e, forse di più facile comprensione.*
 
-*Se un grafo risulta incomprensibile si può rieseguire il programma, il nuovo grafo sarà leggermente diverso e, forse, più guardabile.*
-
-Uno dei vari modi per visualizzare il grafo è generare un file .pdf con il comando:
+Una modalità di visualizzazione del grafo consiste nel convertire il file .tex in .pdf con il comando:
 ```console
 pdflatex graph.tex
 ```
@@ -204,7 +200,7 @@ void initAutoma(Automa*, int initLen); //initLen: initial length of nodes and tr
 
 #### Graph
 
-La seguente struct è un altro modo di memorizzare un automa, comoda per fornire l'output e capire come sono collegati gli stati dell'automa.
+La seguente struct è un'alternativa per la memorizzazione di un automa, comoda per fornire l'output e capire come sono collegati gli stati dell'automa stesso.
 
 ```c
 typedef struct { 
@@ -221,10 +217,8 @@ void printGraph(Graph* g);
 
 #### State
 
-La seguente struct identifica uno stato dell'automa, è una raccolta di LR(1) item suddivisi in kernel e la sua espansione.
+La seguente struct identifica uno stato dell'automa: una raccolta di item LR(1), suddivisi in kernel e la sua espansione.
 Tale struttura è fondamentale per il funzionamento dell'algoritmo.
-
-**Ottimizzazione**: TODO
 
 ```c
 typedef struct {
@@ -267,7 +261,7 @@ void destroyItem(LR1item*);
 
 #### Transition
 
-La seguente struct 
+La seguente struct rappresenta un collegamento fra stati dell'automa.
 
 ```c
 typedef struct {
@@ -291,7 +285,7 @@ void printTransition(Transition*);
 
 ##  Algoritmi
 
-Grazie a tutte le struct e strutture dati appna descritte è ora possibile implementare gli algoritmi che generano gli automi LR(1) e LR(1)m per la grammatica di input, per maggiori dettagli sull'implementazione fare riferimento al file "alg/lalr.c".
+Grazie a tutte le struct e strutture dati appena descritte è ora possibile implementare gli algoritmi che generano gli automi LR(1) e LR(1)m per la grammatica di input, per maggiori dettagli sull'implementazione fare riferimento al file "alg/lalr.c".
 
 ```c
 /**
@@ -315,7 +309,7 @@ Automa* generateLR1Mautoma(Automa* lr1A, Graph* lr1G);
 
 ## Funzionamento
 
-Una volta create le strutture dati e gli algoritmi, il funzionamento del programma è molto semplice:
+Una volta create le strutture dati e gli algoritmi, il funzionamento del programma è chiaro e semplice:
 * Parsing della grammatica ricevuta come input;
 * Creazione del automa LR(1) e relativo grafo;
 * Creazione del automa LR(1)m (derivato dal precedente) e relativo grafo;
@@ -333,8 +327,8 @@ Graph* lr1mG = createGraphFromAutoma(lr1mA, flags & CONSOLE_OUTPUT, "\nLR(1)m au
 
 ## Extra
 
-Ho provato ad ottimizzare il confronto tra kernel di stati calcolandone un hash basato sulle componenti variabili di ogni stato ma purtroppo non sono riuscito a creare una funzione di hash che non abbia collisioni e sia affidabile.
+Ho provato ad ottimizzare il confronto tra kernel di stati calcolando un hash basato sulle componenti variabili di ogni stato. Non sono purtroppo riuscito a creare una funzione di hash che non abbia collisioni e sia affidabile.
 
 E' possibile utilizzare questa funzione aggiungedo il carattere 'o' ai flag.
 
-Le funzione di hash testate sono in "structs/LR1item -> getItemHash". Qualora si riesca a trovare una funzione affidabile il programma eseguito con il flag 'o' dovrebbe fornire output corretti ma con tempi di esecuzione più veloci.
+Le funzioni di hash testate sono in "structs/LR1item: getItemHash". Qualora si riesca ad implementare una funzione affidabile il programma eseguito con il flag 'o' dovrebbe fornire output corretti e con tempi di esecuzione più rapidi.

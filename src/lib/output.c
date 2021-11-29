@@ -72,7 +72,7 @@ void appendToFile(FILE* src, FILE* dst) {
     }
 }
 
-void ouputLatexAutoma(Graph* g) {
+void ouputLatexAutoma(Graph* g, Automa* a) {
     FILE *src = fopen(PRE_FILENAME, "rb");
     FILE *finalFile = fopen(OUT_TEX_FILENAME, "wb+");
 
@@ -110,6 +110,39 @@ void ouputLatexAutoma(Graph* g) {
                 i == n->dest?"[loop above]":"", i, n->symbol=='#'?"\\#":ctos(n->symbol), n->dest);
             n = n->next;
         }
+    }
+
+    //Reducing items
+    fprintf(finalFile, "\\end{tikzpicture}\n\n\\textbf{Reducing items:}\n\\begin{itemize}\n");
+    for (int i = 0; i < a->nodes->used; i++) {
+        State* s = (State*)a->nodes->data[i];
+        if(g->finals[i]) {
+            fprintf(finalFile, "\\item[%d:] ", i);
+            int itemsCount = s->items->used;
+            for (int j = 0; j < itemsCount; j++) {
+                LR1item* item = s->items->data[j];
+                if(markerAtTheEnd(item)) {
+                    char c; int k = 0;
+                    fprintf(finalFile, "%c %s ", item->p->driver, T_ITEM_ARROW);
+                    while((c = item->p->body[k++])) if(c == '#') fprintf(finalFile, "\\#"); else fprintf(finalFile, "%c ", c);
+
+                    //Lookahead set
+                    k = 0;
+                    fprintf(finalFile, "\\{ ");
+                    char* ls = mergeSetIntoString(item->ls); 
+                    while((c = ls[k++])) {
+                        if(c == '$') 
+                            fprintf(finalFile, "\\$ ");
+                        else
+                            fprintf(finalFile, "%c ", c);
+                        if(ls[k] != 0) fprintf(finalFile, ",");
+                    }
+                    free(ls);
+                    fprintf(finalFile, "\\} ");
+                }
+            }
+            fprintf(finalFile, "\n");
+        }        
     }
 
     src = fopen(POST_FILENAME, "rb");

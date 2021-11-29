@@ -31,7 +31,7 @@ void printUsageAndExit() {
 Graph* createGraphFromAutoma(Automa* a, int print, char* header) {
     int* finalStates = malloc(sizeof(int)*a->nodes->used);
 
-    if(print) printf(header);
+    if(print) printf("%s", header);
 
     for (int i = 0; i < a->nodes->used; i++) {
         State* s = (State*)a->nodes->data[i];
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
         printGraph(lr1mG);
     }
 
-    if(flags & TEX_OUTPUT) ouputLatexAutoma(lr1mG);
+    if(flags & TEX_OUTPUT) ouputLatexAutoma(lr1mG, lr1mA);
     if(flags & RAW_OUTPUT) ouputRawAutoma(lr1mG, lr1mA);
     
     return 0;

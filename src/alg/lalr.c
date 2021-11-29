@@ -20,6 +20,7 @@ void closure0i(Grammar* g, State* s, LR1item* i) {
             Production* p = g->data[i];
             if(p->driver == c) {
                 LR1item* newItem = createItem(p, 0);
+                while(isEpsilon(getMarkedSymbol(newItem))) newItem->marker++;
                 if(!kernelExpansionContains(s, newItem, FALSE)) { //Avoid duplicates due to recursion
                     insertList(s->items, newItem);
                     closure0i(g, s, newItem);
@@ -158,8 +159,9 @@ void expandLR1Automa(Grammar* g, Automa* a, int fromState, int useHashKernelComp
                 for (sameKernelI = 0; sameKernelI < a->nodes->used; sameKernelI++) { //foreach state (aState) in the automa
                     //if(useHashKernelComp && sameKernelHash(a->nodes->data[sameKernelI], newState)) { printState(a->nodes->data[sameKernelI], sameKernelI); printState(newState, -1); printf("%s\n%ld\n%ld\n------------\n", sameKernelHash(a->nodes->data[sameKernelI], newState)?"SI":"NO", ((State*)a->nodes->data[sameKernelI])->hash, newState->hash); }
                     if(
-                        (useHashKernelComp && sameKernelHash(a->nodes->data[sameKernelI], newState)) //if program launched with optimization flag
-                        || sameKernel(a->nodes->data[sameKernelI], newState, FALSE)                  //otherwise
+                        (useHashKernelComp && sameKernelHash(a->nodes->data[sameKernelI], newState))       //if program launched with optimization flag
+                        || 
+                        (!useHashKernelComp && sameKernel(a->nodes->data[sameKernelI], newState, FALSE))   //otherwise
                     ) {
                         alreadyExists = TRUE;
                         break;
