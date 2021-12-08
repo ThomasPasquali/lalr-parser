@@ -191,10 +191,14 @@ char* mergeSetIntoString(SimpleSet* set) {
 
     for (uint64_t i = 0; i < setLen; i++) sLen += strlen(a[i]);
     
-    char* s = malloc(sizeof(char)*sLen+1);
-    for (uint64_t i = 0; i < setLen; i++)
+    char* s = malloc(sizeof(char)*(sLen + setLen*2 + 1));
+    for (uint64_t i = 0; i < setLen; i++) {
         for (size_t j = 0; j < strlen(a[i]); j++)
             s[sI++] = a[i][j];
+        if(i < setLen-1) {
+            s[sI++] = ',';
+        }
+    }
     s[sI] = 0;
     
     for (uint64_t i = 0; i < setLen; i++) free(a[i]);

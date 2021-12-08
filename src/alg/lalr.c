@@ -46,77 +46,65 @@ void closure0(Grammar* g, State* s) {
 void closure1(Grammar* g, State* s) {
     closure0(g, s);
     void** items = s->items->data;
-    int i = 0;
     int n = s->items->used;
-    int marked[n]; 
-    for (; i < n; i++) marked[i] = FALSE;
     uint64_t j;
-    i = 0;
 
     //printf("CLOSURE 0\n"); printState(s, -3);
     
-    while(i < n) { //while exists a non-marked item
-        if(!marked[i]) {
-            marked[i] = TRUE;
-            LR1item* item = items[i];
-            char B = getMarkedSymbol(item);
-            if(isNonTerminal(B)) {
+    for(int i = 0; i < n; i++) { //while exists a non-marked item
 
-                //Computing delta1
-                SimpleSet* newLS = malloc(sizeof *newLS); set_init(newLS); //delta1
-                uint64_t dsLen = set_length(item->ls);
-                char** ds = set_to_array(item->ls, &dsLen); //Elements of items->ls
+        LR1item* item = items[i];
+        char B = getMarkedSymbol(item);
+        if(isNonTerminal(B)) {
 
-                //Extracting beta
-                int betaLen = strlen(item->p->body)-item->marker;
-                char* beta = malloc(sizeof(char)*betaLen);
-                strncpy(beta, item->p->body+item->marker+1, betaLen);
+            //Computing delta1
+            SimpleSet* newLS = malloc(sizeof *newLS); set_init(newLS); //delta1
+            uint64_t dsLen = set_length(item->ls);
+            char** ds = set_to_array(item->ls, &dsLen); //Elements of items->ls
 
-                //printf("body:%s, beta:%s\n", item->p->body, beta);
+            //Extracting beta
+            int betaLen = strlen(item->p->body)-item->marker;
+            char* beta = malloc(sizeof(char)*betaLen);
+            strncpy(beta, item->p->body+item->marker+1, betaLen);
 
-                for (j = 0; j < dsLen; j++) {
-                    //Creating beta d
-                    char* bd = malloc(sizeof(char)*betaLen+1);
-                    strncpy(bd, beta, betaLen);
-                    bd[betaLen-1] = ds[j][0];
-                    bd[betaLen] = 0;
+            //printf("body:%s, beta:%s\n", item->p->body, beta);
 
-                    //printf("bd:%s|\n",bd);
+            for (j = 0; j < dsLen; j++) {
+                //Creating beta d
+                char* bd = malloc(sizeof(char)*betaLen+1);
+                strncpy(bd, beta, betaLen);
+                bd[betaLen-1] = ds[j][0];
+                bd[betaLen] = 0;
 
-                    //Adding to delta1
-                    SimpleSet* firstbd = first(g, bd);
-                    //printf("first(bd)={%s}|\n", mergeSetIntoString(firstbd));
-                    SimpleSet* tmp = malloc(sizeof *tmp); set_init(tmp);
-                    set_union(tmp, firstbd, newLS);
+                //printf("bd:%s|\n",bd);
 
-                    free(bd); set_destroy(firstbd); set_destroy(newLS);
-                    newLS = tmp;
-                }
+                //Adding to delta1
+                SimpleSet* firstbd = first(g, bd);
+                //printf("first(bd)={%s}|\n", mergeSetIntoString(firstbd));
+                SimpleSet* tmp = malloc(sizeof *tmp); set_init(tmp);
+                set_union(tmp, firstbd, newLS);
 
-                //printf("delta1:%s|\n", mergeSetIntoString(newLS));
-                free(beta);
-
-                //Looking for items to update
-                for (j = 0; j < (uint64_t)s->items->used; j++) {
-                    LR1item* itm = items[j];
-                    if(itm->p->driver == B && set_is_subset(newLS, itm->ls) == SET_FALSE) { //Found item to update
-                        marked[j] = FALSE;
-
-                        //Updating ls
-                        SimpleSet* tmp = malloc(sizeof *tmp); set_init(tmp);
-                        set_union(tmp, itm->ls, newLS);
-
-                        set_destroy(itm->ls);
-                        itm->ls = tmp;
-                    }
-                }
-
-                free(newLS);
-
+                free(bd); set_destroy(firstbd); set_destroy(newLS);
+                newLS = tmp;
             }
-            i = (i+1)%n;
-        }else 
-            i++;        
+            //printf("delta1:%s|\n", mergeSetIntoString(newLS));
+            free(beta);
+
+            //Looking for items to update
+            for (j = s->kernelSize; j < (uint64_t)s->items->used; j++) {
+                LR1item* itm = items[j];
+                if(itm->p->driver == B && set_is_subset(newLS, itm->ls) == SET_FALSE) { //Found item to update
+                    //Updating ls
+                    SimpleSet* tmp = malloc(sizeof *tmp); set_init(tmp);
+                    set_union(tmp, itm->ls, newLS);
+
+                    set_destroy(itm->ls);
+                    itm->ls = tmp;
+                }
+            }
+            free(newLS);
+        }
+        
     }
 
     //printf("END CLOSURE 1\n"); printState(s, -3);

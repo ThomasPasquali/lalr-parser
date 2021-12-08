@@ -21,7 +21,8 @@ void printItem(LR1item* item) {
         s[j++] = '.';
         s[j] = 0;
     }
-    printf(GREEN"LR(1)item(%p): [%c -> %s, {%s}]"E"\n", item, item->p->driver, s, mergeSetIntoString(item->ls));
+    //printf(GREEN"LR(1)item(%p): [%c -> %s, {%s}]"E"\n", item, item->p->driver, s, mergeSetIntoString(item->ls));
+    printf(GREEN"%c -> %s, {%s}"E"\n", item->p->driver, s, mergeSetIntoString(item->ls));
 }
 
 LR1item* createItem(Production* p,int marker) {
